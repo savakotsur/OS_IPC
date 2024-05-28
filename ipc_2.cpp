@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-#define PORT 9090
+#define PORT 8080
 
 void run_program1(const std::string& input_file);
 void compare_and_write(const std::string& file1_path, const std::string& file2_path, const std::string& output_path);
@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
     
     run_program1(argv[1]);
 
+    // Добавляем небольшую задержку перед попыткой подключения к серверу
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "Socket creation error\n";
         return -1;
@@ -41,7 +44,7 @@ int main(int argc, char *argv[]) {
     }
     
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        std::cerr << "Connection Failed\n";
+        std::cerr << "Connection Failed 1\n";
         return -1;
     }
 
@@ -63,6 +66,8 @@ int main(int argc, char *argv[]) {
 
     run_program1(argv[2]);
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Еще одна задержка перед подключением
+
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "Socket creation error\n";
         return -1;
@@ -76,8 +81,8 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        std::cerr << "Connection Failed2\n";
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        std::cerr << "Connection Failed 2\n";
         return -1;
     }
 
@@ -87,7 +92,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-     while (true) {
+    while (true) {
         valread = read(sock, buffer2, 1024);
         if (valread <= 0) break;
         outfile2.write(buffer2, valread);
@@ -99,6 +104,7 @@ int main(int argc, char *argv[]) {
     compare_and_write("temp2.txt", "temp1.txt", "output.txt");
     return 0;
 }
+
 
 void run_program1(const std::string& input_file) {
     pid_t pid = fork();

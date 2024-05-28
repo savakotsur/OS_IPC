@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define PORT 9090
+#define PORT 8080
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -49,15 +49,15 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    std::ifstream file(argv[1]);
+    std::ifstream file(argv[1], std::ios::binary); // Открываем файл в бинарном режиме
     if (!file) {
         std::cerr << "Failed to open file\n";
         return 1;
     }
 
-    std::string line;
-    while (std::getline(file, line)) {
-        send(new_socket, line.c_str(), line.length(), 0);
+    char byte;
+    while (file.get(byte)) { // Считываем данные по одному байту
+        send(new_socket, &byte, 1, 0); // Передаем один байт
     }
 
     file.close();
